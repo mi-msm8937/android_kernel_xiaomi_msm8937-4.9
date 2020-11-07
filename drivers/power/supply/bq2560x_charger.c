@@ -216,7 +216,7 @@ struct bq2560x {
 
 	enum power_supply_type usb_supply_type;
 	struct extcon_dev *extcon;
-
+	struct regulator	*dpdm_reg;
 };
 
 static int BatteryTestStatus_enable = 0;
@@ -1359,6 +1359,43 @@ static void bq2560x_psy_unregister(struct bq2560x *bq)
 	power_supply_unregister(bq->usb_psy);
 }
 
+static int bq2560x_request_dpdm(struct bq2560x *bq, bool enable)
+{
+	int rc = 0;
+
+	/* fetch the DPDM regulator */
+	if (!bq->dpdm_reg && of_get_property(bq->dev->of_node,
+				"dpdm-supply", NULL)) {
+		bq->dpdm_reg = devm_regulator_get(bq->dev, "dpdm");
+		if (IS_ERR(bq->dpdm_reg)) {
+			rc = PTR_ERR(bq->dpdm_reg);
+			pr_err("Couldn't get dpdm regulator rc=%d\n",
+					rc);
+			bq->dpdm_reg = NULL;
+			return rc;
+		}
+	}
+
+	if (enable) {
+		if (bq->dpdm_reg && !regulator_is_enabled(bq->dpdm_reg)) {
+			pr_err("enabling DPDM regulator\n");
+			rc = regulator_enable(bq->dpdm_reg);
+			if (rc < 0)
+				pr_err("Couldn't enable dpdm regulator rc=%d\n",
+					rc);
+		}
+	} else {
+		if (bq->dpdm_reg && regulator_is_enabled(bq->dpdm_reg)) {
+			pr_err("disabling DPDM regulator\n");
+			rc = regulator_disable(bq->dpdm_reg);
+			if (rc < 0)
+				pr_err("Couldn't disable dpdm regulator rc=%d\n",
+					rc);
+		}
+	}
+
+	return rc;
+}
 
 static int bq2560x_otg_regulator_enable(struct regulator_dev *rdev)
 {
@@ -1984,9 +2021,7 @@ static const unsigned char* charge_stat_str[] = {
 static void bq2560x_dump_status(struct bq2560x* bq)
 {
 	u8 status;
-	u8 addr;
 	int ret;
-	u8 val;
 	union power_supply_propval batt_prop = {0,};
 	
 	ret = bq2560x_get_batt_property(bq,
@@ -2141,6 +2176,7 @@ static irqreturn_t bq2560x_charger_interrupt(int irq, void *dev_id)
 		bq->usb_present = true;
 		msleep(10);/*for cdp detect*/
 		extcon_set_cable_state_(bq->extcon, EXTCON_USB, true);
+		bq2560x_request_dpdm(bq, true);
 
 		cancel_delayed_work(&bq->discharge_jeita_work);
 
@@ -2173,6 +2209,10 @@ static void determine_initial_status(struct bq2560x *bq)
 	ret = bq2560x_get_hiz_mode(bq, &status);
 	if (!ret) 
 		bq->in_hiz = !!status;
+
+	if (bq->usb_present) {
+		bq2560x_request_dpdm(bq, true);
+	}
 
 	bq2560x_charger_interrupt(bq->client->irq, bq);
 
