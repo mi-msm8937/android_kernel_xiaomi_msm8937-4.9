@@ -2037,6 +2037,7 @@ static void bq2560x_dump_status(struct bq2560x* bq)
 	if (!ret)
 	 		pr_err("FG current:%d\n", batt_prop.intval);
 
+/*
 	pr_err("bq Reg[0x00 -0x0B] = ");
 	for (addr = 0x0; addr <= 0x0B; addr++) {
 		ret = bq2560x_read_byte(bq, &val, addr);
@@ -2047,6 +2048,7 @@ static void bq2560x_dump_status(struct bq2560x* bq)
 	}
 
 	printk("\n");
+*/
 
 	if (!bq->power_good)
 		pr_info("Power Poor\n");
