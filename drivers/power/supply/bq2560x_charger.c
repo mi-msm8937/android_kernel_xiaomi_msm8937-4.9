@@ -999,7 +999,6 @@ static int bq2560x_usb_get_property(struct power_supply *psy,
 				  enum power_supply_property psp,
 				  union power_supply_propval *val)
 {
-	int is_battery_charging = 0;
 	struct bq2560x *bq = power_supply_get_drvdata(psy);
 
 	switch (psp) {
@@ -1011,9 +1010,7 @@ static int bq2560x_usb_get_property(struct power_supply *psy,
 		val->intval = bq->usb_present;
 		break;
 	case POWER_SUPPLY_PROP_ONLINE:
-		is_battery_charging = bq2560x_get_prop_charge_status(bq);
-		val->intval = bq->usb_present &&
-			(is_battery_charging == POWER_SUPPLY_STATUS_CHARGING);
+		val->intval = bq->usb_present;
 		break;
 	case POWER_SUPPLY_PROP_REAL_TYPE:
 		val->intval = POWER_SUPPLY_TYPE_UNKNOWN;
