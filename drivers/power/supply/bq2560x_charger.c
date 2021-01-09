@@ -822,7 +822,7 @@ static int bq2560x_get_prop_charge_status(struct bq2560x *bq)
 		case CHARGE_STATE_PRECHG:
 			return POWER_SUPPLY_STATUS_CHARGING;
 		case CHARGE_STATE_CHGDONE:
-			return POWER_SUPPLY_STATUS_NOT_CHARGING;
+			return POWER_SUPPLY_STATUS_FULL;
 		case CHARGE_STATE_IDLE:
 			return POWER_SUPPLY_STATUS_DISCHARGING;
 		default:
