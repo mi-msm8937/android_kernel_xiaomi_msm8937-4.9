@@ -2490,6 +2490,10 @@ int get_boot_mode(struct i2c_client *client)
 	return 0;
 }
 
+#ifdef CONFIG_MACH_XIAOMI
+extern bool xiaomi_ts_probed;
+#endif
+
 static int ft5x06_ts_probe(struct i2c_client *client,
 		const struct i2c_device_id *id)
 {
@@ -2505,6 +2509,11 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 #if TPD_AUTO_UPGRADE
 	int ret_auto_upgrade = 0;
 	int i;
+#endif
+
+#ifdef CONFIG_MACH_XIAOMI
+	if (xiaomi_ts_probed)
+		return -ENODEV;
 #endif
 
 	temp = NULL;
@@ -2849,6 +2858,10 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 
 	enable_irq(data->client->irq);
 
+#ifdef CONFIG_MACH_XIAOMI
+	xiaomi_ts_probed = true;
+#endif
+
 	return 0;
 
 
@@ -2914,6 +2927,10 @@ static int ft5x06_ts_remove(struct i2c_client *client)
 			CTP_ERROR("Cannot get idle pinctrl state\n");
 	}
 	input_unregister_device(data->input_dev);
+
+#ifdef CONFIG_MACH_XIAOMI
+	xiaomi_ts_probed = false;
+#endif
 
 	return 0;
 }
