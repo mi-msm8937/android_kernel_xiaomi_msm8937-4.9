@@ -2140,7 +2140,7 @@ static void bq2560x_update_status(struct bq2560x *bq)
 static irqreturn_t bq2560x_charger_interrupt(int irq, void *dev_id)
 {
 	struct bq2560x *bq = dev_id;
-	
+
 	u8 status;
 	int ret;	
 	
@@ -2169,8 +2169,9 @@ static irqreturn_t bq2560x_charger_interrupt(int irq, void *dev_id)
 	if(!bq->power_good) {
 	    if(bq->usb_present) {
 			bq->usb_present = false;
-			extcon_set_cable_state_(bq->extcon, EXTCON_USB, false);
 			bq->usb_supply_type = POWER_SUPPLY_TYPE_UNKNOWN;
+			extcon_set_cable_state_(bq->extcon, EXTCON_USB, false);
+			/* bq2560x_request_dpdm(bq, false); */
 		}
 
 		if (bq->software_jeita_supported) {
@@ -2185,9 +2186,9 @@ static irqreturn_t bq2560x_charger_interrupt(int irq, void *dev_id)
 		pr_err("usb removed, set usb present = %d\n", bq->usb_present);
 	} else if (bq->power_good && !bq->usb_present) {
 		bq->usb_present = true;
+		bq2560x_request_dpdm(bq, true);
 		msleep(10);/*for cdp detect*/
 		extcon_set_cable_state_(bq->extcon, EXTCON_USB, true);
-		bq2560x_request_dpdm(bq, true);
 
 		cancel_delayed_work(&bq->discharge_jeita_work);
 
@@ -2221,9 +2222,8 @@ static void determine_initial_status(struct bq2560x *bq)
 	if (!ret) 
 		bq->in_hiz = !!status;
 
-	if (bq->usb_present) {
+	if (bq->usb_present)
 		bq2560x_request_dpdm(bq, true);
-	}
 
 	bq2560x_charger_interrupt(bq->client->irq, bq);
 
