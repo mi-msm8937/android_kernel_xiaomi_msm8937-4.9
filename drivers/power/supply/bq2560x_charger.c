@@ -1034,7 +1034,7 @@ static int bq2560x_usb_get_property(struct power_supply *psy,
 		val->intval = POWER_SUPPLY_TYPE_USB;
 		if (bq->usb_present &&
 			(bq->usb_supply_type != POWER_SUPPLY_TYPE_UNKNOWN))
-			val->intval = bq->usb_supply_type;
+			val->intval = bq->usb_psy_desc.type;
 		break;
 	default:
 		return -EINVAL;
@@ -1053,9 +1053,10 @@ static int bq2560x_usb_set_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		bq->usb_psy_ma = val->intval / 1000;
 		break;
-	case POWER_SUPPLY_PROP_TYPE:
 	case POWER_SUPPLY_PROP_REAL_TYPE:
 		bq->usb_supply_type = val->intval;
+	case POWER_SUPPLY_PROP_TYPE:
+		bq->usb_psy_desc.type = val->intval;
 		break;
 	default:
 		return -EINVAL;
