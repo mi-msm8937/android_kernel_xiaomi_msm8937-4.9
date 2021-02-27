@@ -38,3 +38,15 @@
 &pmi8950_torch0 {
 	qcom,led-name = "flashlight";
 };
+
+&sdc2_cmd_on {
+	config {
+		drive-strength = <12>;
+	};
+};
+
+&sdc2_data_on {
+	config {
+		drive-strength = <12>;
+	};
+};
