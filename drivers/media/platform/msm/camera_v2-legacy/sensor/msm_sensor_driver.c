@@ -1089,6 +1089,12 @@ int32_t msm_sensor_driver_probe(void *setting,
 				rc = -EINVAL;
 				goto free_slave_info;
 			}
+		} else if(!strcmp(slave_info->sensor_name, "s5k4h7_ofilm")) {
+			if (main_module_id != 7) {
+				pr_err("failed: main_module_id %d, sensor is not %s", main_module_id, slave_info->sensor_name);
+				rc = -EINVAL;
+				goto free_slave_info;
+			}
 		} else if (!strcmp(slave_info->sensor_name, "s5k3l8_sunny")) {
 			if (main_module_id != 1) {
 				pr_err("failed: main_module_id %d, sensor is not %s", main_module_id, slave_info->sensor_name);
