@@ -32,7 +32,7 @@ extern int xiaomi_series_read(void);
 #ifdef CONFIG_MACH_XIAOMI_TIARE
 #define HI556_USE_OTP   1
 #ifdef HI556_USE_OTP
-int hi556_insensor_read_otp_info(struct msm_eeprom_ctrl_t *e_ctrl);
+extern int hi556_insensor_read_otp_info(struct msm_eeprom_ctrl_t *e_ctrl);
 #endif
 #endif
 
@@ -2450,7 +2450,7 @@ static int msm_eeprom_platform_probe(struct platform_device *pdev)
 			}
 		} else if (!strcmp(eb_info->eeprom_name, "hi556_sunny")) {
 			CDBG("match id for hi556_sunny\n");
-#if HI556_USE_OTP
+#ifdef HI556_USE_OTP
 			rc = hi556_insensor_read_otp_info(e_ctrl);
 			if (rc < 0) {
 				pr_err("%s hi556_insensor_read_otp_info failed!\n", __func__);
