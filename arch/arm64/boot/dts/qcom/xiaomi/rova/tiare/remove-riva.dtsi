@@ -1,6 +1,6 @@
 / {
 	reserved-memory {
-		/delete-node/ ramoops@a0000000;
+		/delete-node/ ramoops@b0000000;
 	};
 };
 
