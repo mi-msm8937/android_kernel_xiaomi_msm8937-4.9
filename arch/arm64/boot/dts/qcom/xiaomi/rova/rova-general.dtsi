@@ -29,5 +29,3 @@
 		reg-names = "sec-boot-base";
 	};
 };
-
-#include "rova-cpu.dtsi"
